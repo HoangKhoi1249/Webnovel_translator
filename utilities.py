@@ -152,6 +152,10 @@ class TranslateLogger:
 
         return Summary
 
+def add_with_padding(A: str, B: str) -> str:
+    MaxLength = max(len(A), len(B))
+    return str(int(A) + int(B)).zfill(MaxLength)
+
 def has_subfolders(fol_path):
 
     """Check if a directory contains any subdirectories.
