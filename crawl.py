@@ -1,6 +1,7 @@
 import argparse
 import os
 import json
+import sys
 from bs4 import BeautifulSoup, Tag
 import requests
 
@@ -43,25 +44,25 @@ def main():
         help="Input directory containing .txt files with chapter URLs (one per line)"
         )
     
-    parser.add_argument(
-        "--batch",
+    parser.add_argument (
+        "--batch", 
         action="store_true",
         help="Batch mode: crawl each .txt file in the input directory separately"
         )
     
-    parser.add_argument(
+    parser.add_argument (
         "-o", "--output",
         help="Output file path", 
         default="output.txt"
         )
     
-    parser.add_argument(
+    parser.add_argument (
         "--output-dir",
         nargs="?",
         help="Output directory for batch mode (each .txt file will be saved as a separate .txt file with the same name)",
         default="output_crawled"
         )
-    parser.add_argument(
+    parser.add_argument (
         "--source",
         choices=["shuhaige"],
         default="shuhaige",
@@ -79,8 +80,12 @@ def main():
     else:
         with open(args.input, "r", encoding="utf-8") as fin:
             data = fin.read()
-        
-        
+        if args.source == "shuhaige":
+            data = shuhaige_chapter_content(data)
+        elif args.source is None:
+            sys.exit("You must specify the source website using --source")
+        else:
+            sys.exit(f"Unsupported source: {args.source}")
 
         with open(args.output, "w", encoding="utf-8") as fout:
             fout.write(data)
