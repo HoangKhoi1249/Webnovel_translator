@@ -1,6 +1,35 @@
 import argparse
 from pathlib import Path
+import re
 from docx import Document
+
+
+
+
+def add_runs_with_format(Paragraph, Text: str):
+    Parts = re.split(r"(\*\*\*.*?\*\*\*|\*\*.*?\*\*|\*.*?\*)", Text)
+
+    for Part in Parts:
+        if not Part:
+            continue
+
+        Run = Paragraph.add_run()
+
+        if Part.startswith("***") and Part.endswith("***"):
+            Run.text = Part[3:-3]
+            Run.bold = True
+            Run.italic = True
+
+        elif Part.startswith("**") and Part.endswith("**"):
+            Run.text = Part[2:-2]
+            Run.bold = True
+
+        elif Part.startswith("*") and Part.endswith("*"):
+            Run.text = Part[1:-1]
+            Run.italic = True
+
+        else:
+            Run.text = Part
 
 
 def convert_file(InputFile: Path, OutputFile: Path):
@@ -24,9 +53,12 @@ def convert_file(InputFile: Path, OutputFile: Path):
             Level = len(Line) - len(Line.lstrip("#"))
             Text = Line[Level:].strip()
 
-            DocumentObj.add_heading(Text, level=min(Level, 9))
+            Heading = DocumentObj.add_heading("", level=min(Level, 9))
+            add_runs_with_format(Heading, Text)
+
         else:
-            DocumentObj.add_paragraph(Line)
+            Paragraph = DocumentObj.add_paragraph()
+            add_runs_with_format(Paragraph, Line)
 
         if Index % 500 == 0 or Index == TotalLines:
             print(f"  {Index}/{TotalLines} lines")
