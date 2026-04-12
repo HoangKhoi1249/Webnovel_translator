@@ -40,7 +40,8 @@ def load_state(state_file):
             "LastUrl": url,
             "Hashes": hashes
         }
-    except:
+    except Exception as e:
+        print(f"Error loading state: {e}")
         return None
     
 def save_state(state_file, page_index, current_url, content_hash):
@@ -115,7 +116,7 @@ def click_button(driver, wait, log_file, primary, secondary, keywords, try_text=
             btn.click()
             write_log(log_file, "[+] Click PRIMARY")
             return True
-        except:
+        except:  # noqa: E722
             write_log(log_file, "[!] Primary fail")
 
         # --- 2. SECONDARY ---
@@ -124,7 +125,7 @@ def click_button(driver, wait, log_file, primary, secondary, keywords, try_text=
             btn.click()
             write_log(log_file, "[+] Click SECONDARY")
             return True
-        except:
+        except:  # noqa: E722
             write_log(log_file, "[!] Secondary fail")
 
     # --- 3. TEXT ---
@@ -140,7 +141,7 @@ def click_button(driver, wait, log_file, primary, secondary, keywords, try_text=
 
             write_log(log_file, f"[+] Click TEXT: {keyword}")
             return True
-        except:
+        except:  # noqa: E722
             continue
 
     write_log(log_file, "[X] No button found")
@@ -205,6 +206,8 @@ def main():
                 
             else:
                 seen_hashes.add(content_hash)
+                
+                time.sleep(5)  # Wait a bit before saving to ensure page is fully loaded
                 # --- SAVE HTML ---
                 html = driver.page_source
                 file_path = os.path.join(OutputDir, f"{name}.html")
@@ -220,6 +223,7 @@ def main():
                     current_url = driver.current_url
                     save_state(StateFile, i + 1, current_url, content_hash)
                     write_log(log_file, f"[+] State saved: page {i+1}")
+            
 
             # --- CLICK NEXT ---
             success = click_button(
@@ -246,7 +250,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        try:
+            main()
+            break
+        except Exception as e:
+            print(f"[!] ERROR: {e}")
+            print("[!] Restarting in 5 seconds...")
+            time.sleep(5)
+    
 
 """
     try:
