@@ -6,10 +6,11 @@ import time
 from colorama import Fore # type: ignore
 
 
-def collect_files(extension=".txt"):
+def collect_files(path="", extension=".txt"):
     """Collect file paths in the novel directory.
 
     Args:
+        path (str): Path to the novel directory.
         extension (str, optional): File format to collect. Defaults to ".txt".
 
     Returns:
@@ -46,12 +47,25 @@ def collect_files(extension=".txt"):
     """
 
     print()
-    with open('config.json', 'r', encoding="UTF-8") as file:
-        data_config = json.load(file)
-        novel_name = data_config['novel_name']
-
-    novel_folder = f"./novels/{novel_name}/"
+    if path == "":
     
+        with open('config.json', 'r', encoding="UTF-8") as file:
+            data_config = json.load(file)
+            novel_name = data_config['novel_name']
+
+        dir_temp = f"./novels/{novel_name}/"
+
+    elif path != "" and os.path.exists(path):
+        dir_temp = path
+    elif path != "" and not os.path.exists(path):
+        print(Fore.RED + f"Đường dẫn {path} không tồn tại. Vui lòng kiểm tra lại.")
+        return [], []
+    else:
+        print(Fore.RED + "Đường dẫn không hợp lệ. Vui lòng cung cấp đường dẫn đúng.")
+        return [], []
+    
+    novel_folder = util.normalize_path(dir_temp)
+
     if util.has_subfolders(novel_folder):
         volumes_names = [d for d in os.listdir(novel_folder) if os.path.isdir(os.path.join(novel_folder, d))]
         volumes_lists = []
