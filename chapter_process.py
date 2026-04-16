@@ -4,7 +4,7 @@ import json
 import translate as tl
 import time
 from colorama import Fore # type: ignore
-import sys
+
 
 def collect_files(extension=".txt"):
     """Collect file paths in the novel directory.
@@ -157,18 +157,18 @@ def full_translate(path, API_KEY=None, MODEL=None):
 
     with open(path, 'r', encoding="UTF-8") as file:
         content = file.read()
-    is_success = False
+#    is_success = False
     with open('config.json', 'r', encoding="UTF-8") as file:
             data_config = json.load(file)
             NOVEL_NAME = data_config['novel_name']
-    with open('key.txt', 'r', encoding='utf-8') as f:
-        keys = [line.strip() for line in f]
+#    with open('key.txt', 'r', encoding='utf-8') as f:
+#        keys = [line.strip() for line in f]
 
-    with open('model.txt', 'r', encoding='utf-8') as m:
-        models = [line.strip() for line in m]
+#    with open('model.txt', 'r', encoding='utf-8') as m:
+#        models = [line.strip() for line in m]
     
-    is_success = False
-    key_index = 0
+#    is_success = False
+#    key_index = 0
 
     
                 
@@ -183,13 +183,13 @@ def full_translate(path, API_KEY=None, MODEL=None):
         
         save_content(path, translated_content)
 
-        print(Fore.GREEN +f"Dịch hoàn tất! đang bắt đầu chương tiếp theo...")
+        print(Fore.GREEN +"Dịch hoàn tất! đang bắt đầu chương tiếp theo...")
         
-        is_success = True
+#        is_success = True
         time.sleep(3)
         return True
     except Exception as e:
-        print(Fore.RED + f"Lỗi dịch!")
+        print(Fore.RED + "Lỗi dịch!")
         raise ValueError(Fore.RED + f"Dịch thất bại.\n{e}")
         
                     #break  # Exit the model loop if translation is successful

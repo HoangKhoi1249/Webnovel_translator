@@ -3,8 +3,8 @@ import time
 import utilities as util
 import chapter_process as cp
 import sys
-import utilities as util
-from colorama import Fore, Style # type: ignore
+
+from colorama import Fore # type: ignore
 from datetime import datetime
 
 
@@ -50,7 +50,7 @@ def main(split_volume=True, log = None):
         models = [line.strip() for line in m]
 
     try:
-        vol_lists, chapters_list = cp.collect_files()
+        vol_lists, chapters_list = cp.collect_files(extension=".txt")
         
         
         if vol_lists:

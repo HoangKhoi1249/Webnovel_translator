@@ -1,10 +1,10 @@
 import argparse
 import os
-import json
+
 import sys
 from bs4 import BeautifulSoup, Tag
 import utilities as utils
-import requests
+
 
 def shuhaige_chapter_content(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -104,7 +104,7 @@ def main():
                 if args.source == "shuhaige":
                     data = shuhaige_chapter_content(data)
 
-                elif args.source == None:
+                elif args.source is None:
                     sys.exit("You must specify the source website using --source")
                 
                 else:

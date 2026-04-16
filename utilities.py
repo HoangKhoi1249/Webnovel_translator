@@ -50,7 +50,7 @@ class TranslateLogger:
             # Ghi state ngay sau khi ghi log
             self._save_state()
 
-        except:
+        except Exception:
             pass
 
     # =============================
@@ -74,7 +74,7 @@ class TranslateLogger:
                 json.dump(StateData, State, indent=4, ensure_ascii=False)
                 State.flush()
                 os.fsync(State.fileno())
-        except:
+        except Exception:
             pass
 
     # =============================
