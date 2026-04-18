@@ -73,10 +73,11 @@ def collect_files(path="", extension=".txt"):
         # Get folder volume
         for volume in volumes_names:
             chapters_in_vol = []
+            volume_path = os.path.join(novel_folder, volume)
 
             # Get individual chapter in volume
-            for chapter in os.listdir(os.path.join(novel_folder, volume)):
-                chapter_path = util.normalize_path(os.path.join(novel_folder, volume, chapter))
+            for chapter in os.listdir(volume_path):
+                chapter_path = util.normalize_path(os.path.join(volume_path, chapter))
                 if chapter.endswith(extension) and not util.is_existed(chapter_path):
                     chapters_in_vol.append(
                         chapter_path

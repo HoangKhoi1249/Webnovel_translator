@@ -227,8 +227,8 @@ def analyze_save_path(path):
     parts = path.split('/')
     len_path = len(parts)
 
-    if 3 <=len_path <= 5:
-        del parts[0: 2]
+    if 3 <=len_path:
+        del parts[0: len(parts)- 1]  # Remove first two components
         chapter_path = "/".join(parts)
     else:
         print(f"Invalid path! Error 121 | Path depth: {len_path} | Path: {path}")
