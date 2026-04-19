@@ -5,6 +5,8 @@ import traceback
 import re
 from datetime import datetime
 
+from bs4 import BeautifulSoup
+
 class TranslateLogger:
 
     def __init__(self):
@@ -151,6 +153,25 @@ class TranslateLogger:
         Summary += f"Total Processed: {self.SuccessCount + self.FailCount + self.BlockCount + self.QuotaCount}\n"
 
         return Summary
+    
+def get_json_content(path: str, name_json: str) -> str:
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        content = html_to_text(data.get(name_json))
+        if content is None:
+            raise ValueError(f"Variable '{name_json}' not found in the JSON file.")
+        return content
+
+def html_to_text(HtmlContent: str) -> str:
+    Soup = BeautifulSoup(HtmlContent, "html.parser")
+
+    # Get text, each <p> tag on a new line
+    Text = Soup.get_text(separator="\n")
+
+    # Remove extra blank lines
+    Lines = [Line.strip() for Line in Text.splitlines() if Line.strip()]
+
+    return "\n".join(Lines)
 
 def add_with_padding(A: str, B: str) -> str:
     MaxLength = max(len(A), len(B))

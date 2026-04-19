@@ -102,7 +102,7 @@ def collect_files(path="", extension=".txt"):
                                      )
                                      )
         
-        return None, chapters_path
+        return [], chapters_path
 
 def save_content(origin_path, content):
     """Save content to a file in the translated directory structure.
