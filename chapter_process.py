@@ -6,7 +6,7 @@ import time
 from colorama import Fore # type: ignore
 
 
-def collect_files(path="", extension=".txt"):
+def collect_files(path="", extension=".txt", check_existence=True):
     """Collect file paths in the novel directory.
 
     Args:
@@ -78,10 +78,16 @@ def collect_files(path="", extension=".txt"):
             # Get individual chapter in volume
             for chapter in os.listdir(volume_path):
                 chapter_path = util.normalize_path(os.path.join(volume_path, chapter))
-                if chapter.endswith(extension) and not util.is_existed(chapter_path):
-                    chapters_in_vol.append(
-                        chapter_path
-                    )
+                if check_existence:
+                    if chapter.endswith(extension) and not util.is_existed(chapter_path):
+                        chapters_in_vol.append(
+                            chapter_path
+                        )
+                else:
+                    if chapter.endswith(extension):
+                        chapters_in_vol.append(
+                            chapter_path
+                        )
             volumes_lists.append(chapters_in_vol)
                 
         return volumes_names, volumes_lists
