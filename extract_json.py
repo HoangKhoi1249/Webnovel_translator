@@ -60,17 +60,32 @@ def main():
             os.makedirs(args.output, exist_ok=True)
             
             name_v, files = cp.collect_files(args.input, extension=".json")
-            for index_v, volume in enumerate(files):
-                for chapter in volume:
-                    content = util.get_json_content(chapter, args.n_json_content)
-                    save_volume = os.path.join(args.output, name_v[index_v])
-                    os.makedirs(save_volume, exist_ok=True)
-                    
+            if util.is_2d_list(files):
+                for index_v, volume in enumerate(files):
+                    for chapter in volume:
+                        content = util.get_json_content(chapter, args.n_json_content)
+                        save_volume = os.path.join(args.output, name_v[index_v])
+                        os.makedirs(save_volume, exist_ok=True)
+                        
 
+                        if args.ext_output:
+                            save_path = os.path.join(save_volume, os.path.basename(chapter).replace('.json', args.ext_output))
+                        else:
+                            save_path = os.path.join(save_volume, os.path.basename(chapter).replace('.json', '.txt'))
+                        with open(save_path, 'w', encoding='utf-8') as f:                        
+                            if args.title:
+                                title_content = util.get_json_content(chapter, args.title)
+                                content = f"{title_content}\n\n" + content
+                            f.write(content)
+                        print(f"Saved: {save_path}")
+            else:                
+                for chapter in files:
+                    content = util.get_json_content(chapter, args.n_json_content)
                     if args.ext_output:
-                        save_path = os.path.join(save_volume, os.path.basename(chapter).replace('.json', args.ext_output))
+                        save_path = os.path.join(args.output, os.path.basename(chapter).replace('.json', args.ext_output))
                     else:
-                        save_path = os.path.join(save_volume, os.path.basename(chapter).replace('.json', '.txt'))
+                        save_path = os.path.join(args.output, os.path.basename(chapter).replace('.json', '.txt'))
+                        
                     with open(save_path, 'w', encoding='utf-8') as f:                        
                         if args.title:
                             title_content = util.get_json_content(chapter, args.title)
