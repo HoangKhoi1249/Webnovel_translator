@@ -59,7 +59,7 @@ def main():
             os.makedirs(args.input, exist_ok=True)
             os.makedirs(args.output, exist_ok=True)
             
-            name_v, files = cp.collect_files(args.input, extension=".json")
+            name_v, files = cp.collect_files(args.input, ".json", False)
             if util.is_2d_list(files):
                 for index_v, volume in enumerate(files):
                     for chapter in volume:
@@ -85,7 +85,7 @@ def main():
                         save_path = os.path.join(args.output, os.path.basename(chapter).replace('.json', args.ext_output))
                     else:
                         save_path = os.path.join(args.output, os.path.basename(chapter).replace('.json', '.txt'))
-                        
+
                     with open(save_path, 'w', encoding='utf-8') as f:                        
                         if args.title:
                             title_content = util.get_json_content(chapter, args.title)

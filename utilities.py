@@ -4,7 +4,6 @@ import json
 import traceback
 import re
 from datetime import datetime
-
 from bs4 import BeautifulSoup
 
 class TranslateLogger:
@@ -249,7 +248,7 @@ def analyze_save_path(path):
     len_path = len(parts)
 
     if 3 <=len_path:
-        del parts[0: len(parts)- 1]  # Remove first two components
+        del parts[0: len(parts)- 3]  # Remove first two components
         chapter_path = "/".join(parts)
     else:
         print(f"Invalid path! Error 121 | Path depth: {len_path} | Path: {path}")

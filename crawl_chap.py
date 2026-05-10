@@ -132,8 +132,14 @@ def click_button(driver, wait, log_file, primary, secondary, keywords, try_text=
     for keyword in keywords:
         try:
             xpath = f"""
-            //button[.//text()[contains(., '{keyword}')]] |
-            //a[.//text()[contains(., '{keyword}')]]
+            //button[
+                contains(normalize-space(.), '{keyword}') or
+                .//span[contains(normalize-space(.), '{keyword}')]
+            ] |
+            //a[
+                contains(normalize-space(.), '{keyword}') or
+                .//span[contains(normalize-space(.), '{keyword}')]
+            ]
             """
 
             btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
@@ -168,6 +174,8 @@ def main():
     Headless = config.get("Headless", True)
     EnableResume = config.get("EnableResume", False)
     StateFile = config.get("StateFile", "crawl.state.json")
+    TokenName = config.get("TokenName")
+    TokenValue = config.get("TokenValue")
 
     log_file = init_logger(LogDir)
     driver = init_driver(Headless)
@@ -183,6 +191,13 @@ def main():
     try:
         driver.get(start_url)
         
+        if TokenName and TokenValue:
+            driver.add_cookie({
+                "name": TokenName,
+                "value": TokenValue
+            })
+            driver.refresh()
+            write_log(log_file, f"[+] Added cookie: {TokenName}=***")
 
         write_log(log_file, f"[+] Start from page {start_page} : {start_url}")
         for i in range(MaxPages):
