@@ -198,6 +198,10 @@ def main():
             })
             driver.refresh()
             write_log(log_file, f"[+] Added cookie: {TokenName}=***")
+        elif TokenName or TokenValue:
+            write_log(log_file, "[!] Warning: Both TokenName and TokenValue must be set to add cookie")
+        elif TokenName == "" and TokenValue == "":
+            write_log(log_file, "[+] No token provided, continuing without cookie")
 
         write_log(log_file, f"[+] Start from page {start_page} : {start_url}")
         for i in range(MaxPages):
