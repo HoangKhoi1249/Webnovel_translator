@@ -221,7 +221,7 @@ def main():
                 
 
         
-                time.sleep(2)
+                time.sleep(5)
                 
             else:
                 seen_hashes.add(content_hash)
