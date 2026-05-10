@@ -66,8 +66,7 @@ def main():
     
     parser.add_argument (
         "--source",
-        choices=["shuhaige"],
-        default="shuhaige",
+        choices=["shuhaige", "aitruyen"],
         help="Source's website"
     )
 
