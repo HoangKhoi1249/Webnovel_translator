@@ -30,6 +30,30 @@ def shuhaige_chapter_content(html: str) -> str:
 
     return f"{title}\n\n{content}"
 
+def aitruyen_chapter_content(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Title
+    title_tag = soup.select_one("h1")
+    title = title_tag.get_text(strip=True) if title_tag else ""
+
+    # Content
+    content_div = soup.select_one("article.reader-prose.rich-content")
+
+    if not isinstance(content_div, Tag):
+        return ""
+
+    lines = [
+        text
+        for p in content_div.select("p")
+        if (text := p.get_text(strip=True))  # tránh gọi 2 lần
+        and "aitruyen.net" not in text        # lọc quảng cáo
+    ]
+
+    content = "\n".join(lines)
+
+    return f"{title}\n\n{content}"
+
 def main():
     parser = argparse.ArgumentParser(description="Crawl chapter content from various sources")
 
@@ -102,6 +126,9 @@ def main():
                     data = fin.read()
                 if args.source == "shuhaige":
                     data = shuhaige_chapter_content(data)
+                
+                elif args.source == "aitruyen":
+                    data = aitruyen_chapter_content(data)
 
                 elif args.source is None:
                     sys.exit("You must specify the source website using --source")
