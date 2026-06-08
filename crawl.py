@@ -54,6 +54,30 @@ def aitruyen_chapter_content(html: str) -> str:
 
     return f"{title}\n\n{content}"
 
+def novelfull_chapter_content(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Title
+    title_tag = soup.select_one("h3")
+    title = title_tag.get_text(strip=True) if title_tag else ""
+
+    # Content
+    content_div = soup.select_one("div#chapter-content")
+
+    if not isinstance(content_div, Tag):
+        return ""
+
+    lines = [
+        text
+        for p in content_div.select("p")
+        if (text := p.get_text(strip=True))  # tránh gọi 2 lần
+        and "novelfull.com" not in text        # lọc quảng cáo
+    ]
+
+    content = "\n".join(lines)
+
+    return f"{title}\n\n{content}"
+
 def main():
     parser = argparse.ArgumentParser(description="Crawl chapter content from various sources")
 
@@ -90,7 +114,7 @@ def main():
     
     parser.add_argument (
         "--source",
-        choices=["shuhaige", "aitruyen"],
+        choices=["shuhaige", "aitruyen", "novelfull"],
         help="Source's website"
     )
 
@@ -129,6 +153,8 @@ def main():
                 
                 elif args.source == "aitruyen":
                     data = aitruyen_chapter_content(data)
+                elif args.source == "novelfull":
+                    data = novelfull_chapter_content(data)
 
                 elif args.source is None:
                     sys.exit("You must specify the source website using --source")
