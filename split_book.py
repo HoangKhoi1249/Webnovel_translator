@@ -63,7 +63,7 @@ SAVE_DIR = "./novels_txt_split"
 os.makedirs(ORI_DIR, exist_ok=True)
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-def split_file(path, output_dir=None, lines_per_file=100):
+def split_file(path, output_dir=None, lines_per_file=100, h_match=None):
 	"""
 	Split a text file into multiple smaller files.
 
@@ -72,7 +72,7 @@ def split_file(path, output_dir=None, lines_per_file=100):
 		output_dir (str or Path, optional): Directory to save split files.
 			If None, creates a directory named after the input file with '_split' suffix.
 		lines_per_file (int): Number of lines per split file. Default is 100.
-
+		h_match (str, optional): The heading pattern to match. If None, no heading matching is performed.
 	Returns:
 		int: Number of parts created
 
@@ -92,16 +92,34 @@ def split_file(path, output_dir=None, lines_per_file=100):
 	out_file = None
 
 	with path.open("r", encoding="utf-8") as fin:
-		for line in fin:
-			if line_counter % lines_per_file == 0:
-				if out_file:
-					out_file.close()
-				part_name = f"{base}_part{part_index:03d}.txt"
-				out_path = output_dir / part_name
-				out_file = out_path.open("w", encoding="utf-8")
-				part_index += 1
-			out_file.write(line)
-			line_counter += 1
+		if h_match is not None:
+			for line in fin:
+				if line.lstrip().startswith(h_match):
+					if out_file:
+						out_file.close()
+						part_index += 1
+					part_name = f"{base}_part{part_index:03d}.txt"
+					out_path = output_dir / part_name
+					out_file = out_path.open("w", encoding="utf-8")
+					
+				if out_file is None:
+					part_name = f"{base}_part{part_index:03d}.txt"
+					out_path = output_dir / part_name
+					out_file = out_path.open("w", encoding="utf-8")
+				out_file.write(line) # type: ignore
+
+					
+		else:
+			for line in fin:
+					if line_counter % lines_per_file == 0:
+						if out_file:
+							out_file.close()
+						part_name = f"{base}_part{part_index:03d}.txt"
+						out_path = output_dir / part_name
+						out_file = out_path.open("w", encoding="utf-8")
+						part_index += 1
+					out_file.write(line) # type: ignore
+					line_counter += 1
 
 	if out_file:
 		out_file.close()
@@ -126,12 +144,13 @@ def main():
 	parser.add_argument("--batch", action="store_true", help="Process all .txt files under ORI_DIR and write into SAVE_DIR preserving structure")
 	parser.add_argument("--ori-dir", default=ORI_DIR, help="Origin directory to scan when using --batch (default: ORI_DIR)")
 	parser.add_argument("--save-dir", default=SAVE_DIR, help="Base save directory when using --batch (default: SAVE_DIR)")
+	parser.add_argument("--heading", default=None, help="Match lines that start with a heading pattern (e.g., 'Chapter') instead of splitting by line count")
 
 	args = parser.parse_args()
 	input_path = args.input
 	outdir = args.outdir
 	n = args.lines
-
+	h_match = args.heading
 	if args.batch:
 		ori = Path(args.ori_dir)
 		save = Path(args.save_dir)
@@ -148,7 +167,7 @@ def main():
 				rel_parent = Path("")
 			out_dir = save / rel_parent / file.stem
 			try:
-				parts = split_file(file, out_dir, n)
+				parts = split_file(file, out_dir, n, h_match)
 				print(f"{file} -> {out_dir} ({parts} parts)")
 				total += 1
 			except Exception as e:
@@ -166,7 +185,7 @@ def main():
 		print(f"Input file not found: {input_path}")
 		return 1
 
-	parts = split_file(input_path, outdir, n)
+	parts = split_file(input_path, outdir, n, h_match)
 	print(f"Created {parts} part(s) in: {outdir or (Path(input_path).with_suffix('').as_posix() + '_split')}")
 	return 0
 
