@@ -1,7 +1,8 @@
 
 
 
-from google import genai, types  # type: ignore
+from google import genai  # type: ignore
+from google.genai import types  # type: ignore
 import os
 
 

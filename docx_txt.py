@@ -1,50 +1,111 @@
 import argparse
 from pathlib import Path
-
 from docx import Document  # type: ignore
+#from docx.text.run import Run
 
-
-def paragraph_to_markdown(paragraph) -> str:
+def paragraph_to_markdown(paragraph, ImageFolder: Path, ImageIndex: list[int]) -> str:
     if paragraph.style.name.startswith("Heading"):
         try:
-            level = int(paragraph.style.name.split()[-1])
+            Level = int(paragraph.style.name.split()[-1])
         except Exception:
-            level = 1
+            Level = 1
 
-        prefix = "#" * level + " "
+        Prefix = "#" * Level + " "
     else:
-        prefix = ""
+        Prefix = ""
 
-    parts = []
+    Parts = []
 
-    for run in paragraph.runs:
-        text = run.text
+    CurrentText = ""
+    CurrentBold = None
+    CurrentItalic = None
+    
+    def flush():
+        nonlocal CurrentText, CurrentBold, CurrentItalic
 
-        if not text:
+        if not CurrentText:
+            return
+
+        if CurrentBold and CurrentItalic:
+            Parts.append(f"***{CurrentText}***")
+        elif CurrentBold:
+            Parts.append(f"**{CurrentText}**")
+        elif CurrentItalic:
+            Parts.append(f"*{CurrentText}*")
+        else:
+            Parts.append(CurrentText)
+
+        CurrentText = ""
+
+
+    for Run in paragraph.runs:  # noqa: F402
+        Drawing = Run._element.find(".//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}drawing")
+
+        if Drawing is not None:
+            Blip = Drawing.find(".//{http://schemas.openxmlformats.org/drawingml/2006/main}blip")
+
+            if Blip is not None:
+                Rid = Blip.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed")
+
+                if Rid:
+                    ImagePart = Run.part.related_parts[Rid]
+
+                    Ext = ImagePart.content_type.split("/")[-1]
+
+                    ImageName = f"IMG{ImageIndex[0]:03d}.{Ext}"
+                    ImagePath = ImageFolder / ImageName
+
+                    ImagePath.write_bytes(ImagePart.blob)
+
+                    flush()
+                    Parts.append(f"[IMG{ImageIndex[0]:03d}]")
+
+                    ImageIndex[0] += 1
+
+                    continue
+        if not Run.text:
             continue
 
-        if run.bold and run.italic:
-            text = f"***{text}***"
-        elif run.bold:
-            text = f"**{text}**"
-        elif run.italic:
-            text = f"*{text}*"
+        Bold = bool(Run.bold)
+        Italic = bool(Run.italic)
 
-        parts.append(text)
+        if CurrentBold is None:
+            CurrentBold = Bold
+            CurrentItalic = Italic
 
-    return prefix + "".join(parts)
+        if Bold == CurrentBold and Italic == CurrentItalic:
+            CurrentText += Run.text
+        else:
+            flush()
+            CurrentBold = Bold
+            CurrentItalic = Italic
+            CurrentText = Run.text
+
+    flush()
+
+    return Prefix + "".join(Parts)
 
 
 def convert_file(input_file: Path, output_file: Path):
     print(f"[START] {input_file}")
 
     document = Document(str(input_file))
+    ImageFolder = output_file.with_suffix("")
+    ImageFolder.mkdir(parents=True, exist_ok=True)
+
+    ImageIndex = [1]
 
     total = len(document.paragraphs)
 
     with output_file.open("w", encoding="utf-8", newline="\n") as fout:
         for index, paragraph in enumerate(document.paragraphs, 1):
-            fout.write(paragraph_to_markdown(paragraph))
+            fout.write(
+    paragraph_to_markdown(
+        paragraph,
+        ImageFolder,
+        ImageIndex
+    )
+)
             fout.write("\n")
 
             if index % 500 == 0 or index == total:
