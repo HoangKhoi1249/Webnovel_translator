@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 import re
-from docx import Document
+from docx import Document # type: ignore
 
 
 
