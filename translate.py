@@ -1,6 +1,10 @@
 
-import google.generativeai as genai
+
+
+from google import genai, types  # type: ignore
 import os
+
+
 
 
 
@@ -28,13 +32,6 @@ def translate(content, key, model, novel_name):
         - Temperature and top_p parameters control translation creativity
     """
 
-
-
-
-    
-
-    
-
     # Construct paths for additional files
     novel_folder = f"./novels/{novel_name}/"
     relationship = novel_folder + "relationship.md"
@@ -54,6 +51,27 @@ def translate(content, key, model, novel_name):
 
     # Set up model with API key and instructions
     instruc_relate = data_relationship
+
+    Client = genai.Client()  # type: ignore
+    response = Client.models.generate_content(
+        model=model,
+        contents=f"""
+    Dịch văn bản sau sang Tiếng Việt:
+
+    {content}
+    """,
+        config=types.GenerateContentConfig(
+            system_instruction=f"""
+    {prompt}
+    Đây là thông tin bổ sung:
+    {instruc_relate}
+    """,
+            temperature=0.5,
+            top_p=0.8,
+        )
+    )
+
+    '''
     genai.configure(api_key=key) # type: ignore
 
     # Initialize the generative model with system instructions
@@ -68,15 +86,15 @@ def translate(content, key, model, novel_name):
     
     # Generate the translated content
     response = model.generate_content(
-       contents=f"""
+    contents=f"""
         Dịch văn bản sau sang Tiếng việt:\n
         
         {content}
 """,
         generation_config={  # type: ignore
-        "temperature": 0.7,
+        "temperature": 0.5,
         "top_p": 0.8,
     })
-
+    '''
     return response.text
 
