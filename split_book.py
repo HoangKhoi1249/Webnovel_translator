@@ -94,18 +94,16 @@ def split_file(path, output_dir=None, lines_per_file=100, h_match=None):
 	with path.open("r", encoding="utf-8") as fin:
 		if h_match is not None:
 			for line in fin:
-				if line.lstrip().startswith(h_match):
-					if out_file:
-						out_file.close()
-						part_index += 1
-					part_name = f"{base}_part{part_index:03d}.txt"
-					out_path = output_dir / part_name
-					out_file = out_path.open("w", encoding="utf-8")
+				if line.lstrip().startswith(h_match) and out_file:
 					
-				if out_file is None:
-					part_name = f"{base}_part{part_index:03d}.txt"
-					out_path = output_dir / part_name
-					out_file = out_path.open("w", encoding="utf-8")
+					out_file.close()
+					part_index += 1
+					
+				part_name = f"{base}_part{part_index:03d}.txt"
+				out_path = output_dir / part_name
+				out_file = out_path.open("w", encoding="utf-8")
+				
+			
 				out_file.write(line) # type: ignore
 
 					
