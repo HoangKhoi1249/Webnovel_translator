@@ -13,7 +13,7 @@ OPTIONS:
     -o, --outdir DIR         Output directory (default: <input>_split for single file)
     -n, --lines N            Lines per split file (default: 100)
     --batch                  Process all .txt files in directory recursively
-    --ori-dir DIR            Origin directory to scan in batch mode (default: ./novels_txt)
+    --og-dir DIR            Origin directory to scan in batch mode (default: ./novels_txt)
     --save-dir DIR           Base save directory in batch mode (default: ./novels_txt_split)
 
 Single File Mode:
@@ -46,21 +46,21 @@ Batch Mode:
         python split_book.py --batch
 
         # Process with custom source directory
-        python split_book.py --batch --ori-dir ./books
+        python split_book.py --batch --og-dir ./books
 
         # Process with custom destination directory
         python split_book.py --batch --save-dir ./processed
 
         # Process with both custom directories
-        python split_book.py --batch --ori-dir ./books --save-dir ./processed
+        python split_book.py --batch --og-dir ./books --save-dir ./processed
 
 Note: You cannot specify an input file when using --batch mode, and vice versa.
 """
 
-ORI_DIR = "./novels_txt"
+OG_DIR = "./novels_txt"
 SAVE_DIR = "./novels_txt_split"
 
-os.makedirs(ORI_DIR, exist_ok=True)
+os.makedirs(OG_DIR, exist_ok=True)
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 def split_file(path, output_dir=None, lines_per_file=100, h_match=None):
@@ -141,8 +141,8 @@ def main():
 	parser.add_argument("input", nargs="?", help="Input text file to split (omit when using --batch)")
 	parser.add_argument("-o", "--outdir", help="Output directory (default: <input>_split)")
 	parser.add_argument("-n", "--lines", type=int, default=100, help="Lines per split file (default: 100)")
-	parser.add_argument("--batch", action="store_true", help="Process all .txt files under ORI_DIR and write into SAVE_DIR preserving structure")
-	parser.add_argument("--ori-dir", default=ORI_DIR, help="Origin directory to scan when using --batch (default: ORI_DIR)")
+	parser.add_argument("--batch", action="store_true", help="Process all .txt files under OG_DIR and write into SAVE_DIR preserving structure")
+	parser.add_argument("--og-dir", default=OG_DIR, help="Origin directory to scan when using --batch (default: OG_DIR)")
 	parser.add_argument("--save-dir", default=SAVE_DIR, help="Base save directory when using --batch (default: SAVE_DIR)")
 	parser.add_argument("--heading", default=None, help="Match lines that start with a heading pattern (e.g., 'Chapter') instead of splitting by line count")
 
@@ -152,17 +152,17 @@ def main():
 	n = args.lines
 	h_match = args.heading
 	if args.batch:
-		ori = Path(args.ori_dir)
+		og = Path(args.og_dir)
 		save = Path(args.save_dir)
-		if not ori.exists():
-			print(f"Origin directory not found: {ori}")
+		if not og.exists():
+			print(f"Origin directory not found: {og}")
 			return 1
 
 		total = 0
 		failed = 0
-		for file in ori.rglob("*.txt"):
+		for file in og.rglob("*.txt"):
 			try:
-				rel_parent = file.parent.relative_to(ori)
+				rel_parent = file.parent.relative_to(og)
 			except Exception:
 				rel_parent = Path("")
 			out_dir = save / rel_parent / file.stem

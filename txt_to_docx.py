@@ -61,10 +61,10 @@ def convert_file(InputFile: Path, OutputFile: Path):
             add_runs_with_format(Paragraph, Line)
 
         if Index % 500 == 0 or Index == TotalLines:
-            print(f"  {Index}/{TotalLines} lines")
+            print(f"  {Index}/{TotalLines} lines"+ "\r")
 
     DocumentObj.save(str(OutputFile))
-
+    print()
     print(f"[DONE] {OutputFile}\n")
 
 
