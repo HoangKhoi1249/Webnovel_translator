@@ -53,7 +53,7 @@ def translate(content, key, model, novel_name):
     # Set up model with API key and instructions
     instruc_relate = data_relationship
 
-    Client = genai.Client()  # type: ignore
+    Client = genai.Client(api_key=key)  # type: ignore
     response = Client.models.generate_content(
         model=model,
         contents=f"""
